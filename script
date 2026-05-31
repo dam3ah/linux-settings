@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Variables
+ALACRITTY_CONFIG=$(pwd)/alacritty.toml
+ALACRITTY_CONFIG_DIR=$HOME/.config/alacritty
+NVIM_CONFIG=$(pwd)/init.vim
+NVIM_CONFIG_DIR=$HOME/.config/nvim
+ZSHRC_CONFIG=$(pwd)/.zshrc
+FONT_CONFIG_DIR=$HOME/.config/fontconfig
+FONT_CONFIG=$(pwd)/fonts.conf
+
+# FONT CONFIG : should install noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra ttf-dejavu
+if [[ ! -d $FONT_CONFIG_DIR ]]; then
+	mkdir $FONT_CONFIG
+fi
+
+cp $FONT_CONFIG $FONT_CONFIG_DIR
+fc-cache -fv
+# Alacritty
+if [[ ! -d $ALACRITTY_CONFIG_DIR ]]; then
+	mkdir $ALACRITTY_CONFIG_DIR
+fi
+
+if [[  -e $ALACRITTY_CONFIG_DIR/alacritty.toml  ]]; then
+	if [[ -L $ALACRITTY_CONFIG_DIR/alacritty.toml && $(readlink -f $ALACRITTY_CONFIG_DIR/alacritty.toml) == $ALACRITTY_CONFIG ]]; then
+		echo "alacritty.toml already linked"
+	else
+		rm $ALACRITTY_CONFIG_DIR/alacritty.toml
+		(ln -s $ALACRITTY_CONFIG $ALACRITTY_CONFIG_DIR/alacritty.toml && echo "alacritty.toml linked successfully") || echo "alacritty.toml linking failed"
+	fi
+else
+	(ln -s $ALACRITTY_CONFIG $ALACRITTY_CONFIG_DIR/alacritty.toml && echo "alacritty.toml linked successfully") || echo "alacritty.toml linking failed"
+fi
+
+# Nvim 
+if [[ ! -d $NVIM_CONFIG_DIR ]]; then
+	mkdir $NVIM_CONFIG_DIR
+fi
+
+if [[  -e $NVIM_CONFIG_DIR/init.vim  ]]; then
+	if [[ -L $NVIM_CONFIG_DIR/init.vim && $(readlink -f $NVIM_CONFIG_DIR/init.vim) == $NVIM_CONFIG ]]; then
+		echo "init.vim already linked"
+	else
+		rm $NVIM_CONFIG_DIR/init.vim
+		(ln -s $NVIM_CONFIG $NVIM_CONFIG_DIR/init.vim && echo "init.vim linked successfully") || echo "init.vim linking failed"
+	fi
+else
+	(ln -s $NVIM_CONFIG $NVIM_CONFIG_DIR/init.vim && echo "init.vim linked successfully") || echo "init.vim linking failed"
+fi
+
+# ZSHRC
+if [[  -e $ZSHRC_CONFIG  ]]; then
+	if [[ -L $HOME/.zshrc && $(readlink -f $HOME/.zshrc) == $ZSHRC_CONFIG ]]; then
+		echo ".zshrc already linked"
+
+	else
+		rm $HOME/.zshrc
+		(ln -s $ZSHRC_CONFIG $HOME/.zshrc && echo ".zshrc linked successfully") || echo ".zshrc linking failed"
+	fi
+else
+	(ln -s $ZSHRC_CONFIG $HOME/.zshrc && echo ".zshrc linked successfully") || echo ".zshrc linking failed"
+fi

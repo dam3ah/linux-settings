@@ -1,25 +1,24 @@
 "Vim-Plug Plugins
 call plug#begin()
-Plug 'slugbyte/lackluster.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'nvim-tree/nvim-web-devicons'
 Plug 'sainnhe/gruvbox-material'
 Plug 'neovim/nvim-lspconfig'
 Plug 'stevearc/oil.nvim'
-Plug 'jiangmiao/auto-pairs'
-
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
 call plug#end()
 " Nvim Gruvbox Plugin config
 set termguicolors
 set background=dark
 set clipboard=unnamedplus
-let g:gruvbox_material_transparent_background=2
-color gruvbox-material
-
+color slate
+highlight Normal guibg=none
 " Key binding
 nnoremap <C-q> :Oil <CR>
 nnoremap <C-tab> :tabnew <CR>
-nnoremap <M-x> :tabc <CR>k
+nnoremap <M-x> :tabc <CR>
 nnoremap <C-Right> gt <CR>
 nnoremap <C-Left> gT <CR>
 nnoremap <C-Up> :m .-2<CR>==
@@ -37,16 +36,40 @@ set number
 autocmd BufWritePost init.vim source init.vim
 
 
-
 " Using Lua
 lua << END
+-- TODO Clone this repo https://github.com/MetalPhaeton/neo-easy-brackets and move its contents to ~/.config/nvim/lua
+local cmp = require('cmp')
+local lsp_capabilities = vim.lsp.protocol.make_client_capabilities()
+-- Setup cmp
+cmp.setup({
+    capabilities = lsp_capabilities,
+    sources = cmp.config.sources({
+        { name = 'nvim_lsp' },  -- LSP suggestions (clangd)
+        { name = 'buffer' },     -- Text from current file
+    }),
+    mapping = cmp.mapping.preset.insert({
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-Space>'] = cmp.mapping.complete(), -- Trigger menu manually
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept selection
+    }),
+})
+
+vim.lsp.enable('clangd')
+
+vim.keymap.set('n', 'K', function() vim.diagnostic.open_float() end, {
+	buffer = 0})
+
+require("neo-easy-brackets"):map_insert():map_visual()
 require('lualine').setup({
 	options = {
 		section_separators = '',
 	},
 	sections = {
 		lualine_x = {'encoding', 'fileformat', 'lsp_status', 'filetype'},
-	}
+	},
 })
 require("oil").setup({
 	view_options = {
